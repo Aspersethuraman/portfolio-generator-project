@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Portfolio Generator</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+<style>
+    body {
+        background-color: rgb(177, 182, 185);
+        padding: 20px;
+        font-family: Arial, sans-serif;
+    }
+    .profile-img {
+        border-radius: 50%;
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        margin-bottom: 20px;
+    }
+    .card {
+        background-color: white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        margin-bottom: 20px;
+        padding: 15px;
+        border-radius: 10px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-center mb-4">Portfolio Generator</h1>
+
+    <form id="portfolioForm">
+        <div class="mb-3">
+            <label for="name" class="form-label">Your Name</label>
+            <input type="text" class="form-control" id="name" required/>
+        </div>
+
+        <div class="mb-3">
+            <label for="position" class="form-label">Your Position</label>
+            <input type="text" class="form-control" id="position" required/>
+        </div>
+
+        <div class="mb-3">
+            <label for="bio" class="form-label">Brief Bio</label>
+            <textarea class="form-control" id="bio" rows="3" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Skills</label>
+            <div id="skillsContainer"></div>
+            <input type="text" id="skillInput" class="form-control mb-2" placeholder="Enter a skill" />
+            <button type="button" class="btn btn-success mb-3" onclick="addSkill()">Add Skill</button>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Projects</label>
+            <div id="projectsContainer"></div>
+            <input type="text" id="projectName" class="form-control mb-2" placeholder="Project Name" />
+            <input type="text" id="projectDesc" class="form-control mb-2" placeholder="Description" />
+            <input type="url" id="projectLink" class="form-control mb-2" placeholder="Link (URL)" />
+            <button type="button" class="btn btn-warning mb-3" onclick="addProject()">Add Project</button>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Certifications</label>
+            <div id="certificationsContainer"></div>
+            <input type="text" id="certInput" class="form-control mb-2" placeholder="Enter a certification" />
+            <button type="button" class="btn btn-danger mb-3" onclick="addCertification()">Add Certification</button>
+        </div>
+
+        <div class="mb-3">
+            <label for="photo" class="form-label">Profile Photo</label>
+            <input type="file" id="photo" accept="image/*" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Generate Portfolio</button>
+    </form>
+
+    <hr/>
+
+    <div id="portfolioPreview"></div>
+</div>
+
+<script>
+const skills = [];
+const projects = [];
+const certifications = [];
+
+function addSkill() {
+    const input = document.getElementById('skillInput');
+    const skill = input.value.trim();
+    if (skill) {
+        skills.push(skill);
+        updateSkills();
+        input.value = '';
+    }
+}
+
+function updateSkills() {
+    const container = document.getElementById('skillsContainer');
+    container.innerHTML = skills.map(s => 
+        `<span class="badge bg-success me-1 mb-1">${s}</span>`
+    ).join('');
+}
+
+function addProject() {
+    const name = document.getElementById('projectName').value.trim();
+    const desc = document.getElementById('projectDesc').value.trim();
+    const link = document.getElementById('projectLink').value.trim();
+    if (name && desc && link) {
+        projects.push({name, description: desc, link});
+        updateProjects();
+        document.getElementById('projectName').value = '';
+        document.getElementById('projectDesc').value = '';
+        document.getElementById('projectLink').value = '';
+    }
+}
+
+function updateProjects() {
+    const container = document.getElementById('projectsContainer');
+    container.innerHTML = projects.map(p =>
+        `<div class="card text-dark bg-warning mb-2 p-2">
+            <strong>${p.name}</strong>: ${p.description}
+            <a href="${p.link}" target="_blank" class="text-primary">View Project</a>
+        </div>`
+    ).join('');
+}
+
+function addCertification() {
+    const input = document.getElementById('certInput');
+    const cert = input.value.trim();
+    if (cert) {
+        certifications.push(cert);
+        updateCertifications();
+        input.value = '';
+    }
+}
+
+function updateCertifications() {
+    const container = document.getElementById('certificationsContainer');
+    container.innerHTML = certifications.map(c =>
+        `<span class="badge bg-danger me-1 mb-1">${c}</span>`
+    ).join('');
+}
+
+document.getElementById('portfolioForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const position = document.getElementById('position').value.trim();
+    const bio = document.getElementById('bio').value.trim();
+
+    // Handle photo preview
+    const photoInput = document.getElementById('photo');
+    let photoSrc = '';
+    if(photoInput.files.length > 0) {
+        photoSrc = URL.createObjectURL(photoInput.files[0]);
+    }
+
+    const html = `
+        ${photoSrc ? `<img src="${photoSrc}" alt="Profile Image" class="profile-img mx-auto d-block" />` : ''}
+        <h1 style="color: #2C3E50; text-align:center;">${name}</h1>
+        <h2 style="color: #34495E; text-align:center;">${position}</h2>
+        <p style="text-align:center;">${bio}</p>
+
+        <div class="card">
+            <h3 style="color: #4CAF50;">Skills</h3>
+            <ul style="list-style:none; padding:0;">
+                ${skills.map(s => `<li style="background-color: #4CAF50; color: white; padding: 10px; margin: 5px 0; text-align: center;">${s}</li>`).join('')}
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3 style="color: #FFC107;">Projects</h3>
+            <ul style="list-style:none; padding:0;">
+                ${projects.map(p => `
+                    <li style="background-color: #FFC107; color: black; padding: 10px; margin: 5px 0; border-radius: 8px; text-align: center;">
+                        <strong>${p.name}</strong>: ${p.description} 
+                        <a href="${p.link}" target="_blank" style="color: blue; text-decoration: underline;">View Project</a>
+                    </li>
+                `).join('')}
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3 style="color: #FF9999;">Certifications</h3>
+            <ul style="list-style:none; padding:0;">
+                ${certifications.map(c => `<li style="background-color: #FF9999; color: white; padding: 10px; margin: 5px 0; border-radius: 8px; text-align: center;">${c}</li>`).join('')}
+            </ul>
+        </div>
+    `;
+
+    document.getElementById('portfolioPreview').innerHTML = html;
+});
+</script>
+
+</body>
+</html>
